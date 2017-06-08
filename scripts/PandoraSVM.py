@@ -71,12 +71,12 @@ def Sample(X, Y, testFraction=0.1):
 #--------------------------------------------------------------------------------------------------
 
 def TrainModel(X_train, Y_train, kernelString, kernelDegree=2, gammaValue=0.05, coef0Value=1.0, 
-               cValue=1.0, tol=0.001, cache_size=1000):
+               cValue=1.0, tol=0.001, cache_size=1000, enableProbability=False, shrinking=True):
     # Load the SVC object
     svmModel = svm.SVC(C=cValue, cache_size=cache_size, class_weight=None, coef0=coef0Value,
                        decision_function_shape=None, degree=kernelDegree, gamma=gammaValue, 
-                       kernel=kernelString, max_iter=-1, probability=False, random_state=None, 
-                       shrinking=True, tol=tol, verbose=False)
+                       kernel=kernelString, max_iter=-1, probability=enableProbability, 
+                       random_state=None, shrinking=shrinking, tol=tol, verbose=False)
     
     # Train the model   
     startTime = time.time() 
@@ -84,6 +84,7 @@ def TrainModel(X_train, Y_train, kernelString, kernelDegree=2, gammaValue=0.05, 
     
     endTime = time.time()
     nSupportVectors = svmModel.support_vectors_.shape[0]
+
     return svmModel, endTime - startTime, nSupportVectors
     
 #--------------------------------------------------------------------------------------------------
@@ -161,9 +162,12 @@ def WriteXmlFeature(modelFile, feature, tag, indentation):
 
 #--------------------------------------------------------------------------------------------------
 
-def WriteXmlFile(filePath, svmName, datetimeString, yAlpha, bias, kernel, mu, scale, sigma, supportVectors, standardize=True):
+def WriteXmlFile(filePath, svmName, datetimeString, yAlpha, bias, kernel, mu, scale, sigma, 
+                 supportVectors, standardize=True, enableProbability=False, probAParam=0.0, 
+                 probBParam=0.0):
     with open(filePath, "a") as modelFile:
         standStr = str(standardize).lower()
+        probStr = str(enableProbability).lower()
         indentation = OpenXmlTag(modelFile,    'SupportVectorMachine', 0)
         WriteXmlFeature(modelFile, svmName,        'Name', indentation)
         WriteXmlFeature(modelFile, datetimeString, 'Timestamp', indentation)
@@ -173,6 +177,9 @@ def WriteXmlFile(filePath, svmName, datetimeString, yAlpha, bias, kernel, mu, sc
         WriteXmlFeature(modelFile, bias,               'Bias', indentation)
         WriteXmlFeature(modelFile, scale,              'ScaleFactor', indentation)
         WriteXmlFeature(modelFile, standStr,           'Standardize', indentation)
+        WriteXmlFeature(modelFile, probStr,            'EnableProbability', indentation)
+        WriteXmlFeature(modelFile, probAParam,         'ProbAParameter', indentation)
+        WriteXmlFeature(modelFile, probBParam,         'ProbBParameter', indentation)
         indentation = CloseXmlTag(modelFile,       'Machine', indentation)
         
         indentation = OpenXmlTag(modelFile,        'Features', indentation)

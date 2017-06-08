@@ -8,20 +8,21 @@ if __name__=="__main__":
 
     # Settings ------------------------------------------------------------------------------------
     
-    trainingFile    = '../to_use/cut_7600_300238.txt'
-    svmName         = 'SVMVertexSelection'
-    kernelType      = 'rbf'       # poly, rbf, linear
-    kernelDegree    = 2           # only for poly kernel
-    cValue          = float(sys.argv[1])
+    trainingFile      = '../to_use/cut_7600_300238.txt'
+    svmName           = 'SVMVertexSelection'
+    kernelType        = 'rbf'       # poly, rbf, linear
+    kernelDegree      = 2           # only for poly kernel
+    cValue            = float(sys.argv[1])
     
-    gammaValue      = float(sys.argv[2])
-    coef0Value      = 1.0         # default 1.0
+    gammaValue        = float(sys.argv[2])
+    coef0Value        = 1.0         # default 1.0
+    enableProbability = False
     
-    serializeToPkl  = True
-    serializeToXml  = True
-    loadFromPkl     = False
-    xmlFileName     = 'max_14650_300075_rbf_' + str(cValue) + '_' + str(gammaValue) + '.xml'
-    pklFileName     = 'max_14650_300075_rbf_' + str(cValue) + '_' + str(gammaValue) + '.pkl'
+    serializeToPkl    = True
+    serializeToXml    = True
+    loadFromPkl       = False
+    xmlFileName       = 'max_14650_300075_rbf_' + str(cValue) + '_' + str(gammaValue) + '.xml'
+    pklFileName       = 'max_14650_300075_rbf_' + str(cValue) + '_' + str(gammaValue) + '.pkl'
     
     tol       = 0.001
     shrinking = False 
@@ -52,7 +53,7 @@ if __name__=="__main__":
         svmModel, trainingTime, nSupportVectors = TrainModel(X, Y, kernelType, gammaValue=gammaValue, 
                                                              cValue=cValue, kernelDegree=kernelDegree, 
                                                              coef0Value=coef0Value, shrinking=shrinking,
-                                                             tol=tol)
+                                                             tol=tol, enableProbability=enableProbability)
         
         OverwriteStdout(('Trained SVM with ' + str(nFeatures) + ' features and ' + str(nExamples) + 
                          ' examples (%d seconds, %d SVs)\n' % (trainingTime, nSupportVectors)))
@@ -66,12 +67,21 @@ if __name__=="__main__":
         supportVectors = svmModel.support_vectors_
         yAlpha         = svmModel.dual_coef_[0]
         bias           = svmModel.intercept_[0]
+
+        if enableProbability:
+            probAParam     = svmModel.probA_[0]
+            probBParam     = svmModel.probB_[0]
+
+        else:
+            probAParam = 0.0
+            probBParam = 0.0
         
         if serializeToXml:
             OverwriteStdout('Writing model to xml file ' + xmlFileName + '\n')
             datetimeString = datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
             WriteXmlFile(xmlFileName, svmName, datetimeString, yAlpha, bias, GetKernelInt(kernelType), mu, 
-                         gammaValue, sigma, supportVectors, standardize=True) 
+                         gammaValue, sigma, supportVectors, standardize=True, enableProbability=enableProbability, 
+                         probAParam=probAParam, probBParam=probBParam) 
                      
         if serializeToPkl:
             OverwriteStdout('Writing model to pkl file ' + pklFileName + '\n')
