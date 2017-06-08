@@ -22,7 +22,7 @@
 	</FeatureTools>
 </algorithm>
 ```
-2. The above produces sets of training data files of the format `VertexSelection_Region_MCC7_[interaction_type].txt` and `VertexSelection_Vertex_MCC7_[interaction_type].txt'. Randomly permute the vertex SVM data files and sample from different interaction types as desired to produce a vertex SVM training set&mdash;and similarly for the region SVM data.
+2. The above produces sets of training data files of the format `VertexSelection_Region_MCC7_[interaction_type].txt` and `VertexSelection_Vertex_MCC7_[interaction_type].txt`. Randomly permute the vertex SVM data files and sample from different interaction types as desired to produce a vertex SVM training set&mdash;and similarly for the region SVM data.
 
 3. The vertex and region SVMs are treated independently. Analogously to the below, use the sklearn-based Python script `scripts/rbf_gridsearch_test.py` to find graphically the optimal values of `C` and `gamma`.
 
