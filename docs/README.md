@@ -1,4 +1,52 @@
-Instructions for vertexing... 
+### LArSvmVertexSelection algorithm
+
+1. Run the reconstruction over the training set samples with this algorithm in training set mode; e.g.
+```xml
+<algorithm type = "LArSvmVertexSelection">
+	<InputCaloHitListNames>CaloHitListU CaloHitListV CaloHitListW</InputCaloHitListNames>
+	<InputClusterListNames>ClustersU ClustersV ClustersW</InputClusterListNames>
+	<OutputVertexListName>NeutrinoVertices3D</OutputVertexListName>
+	<ReplaceCurrentVertexList>true</ReplaceCurrentVertexList>
+	<TrainingSetMode>true</TrainingSetMode>
+	<TrainingOutputFileRegion>VertexSelection_Region_MCC7</TrainingOutputFileRegion>
+	<TrainingOutputFileVertex>VertexSelection_Vertex_MCC7</TrainingOutputFileVertex>
+	<MCParticleListName>MCParticleList3D</MCParticleListName>
+	<MCVertexXCorrection>0.495694</MCVertexXCorrection>
+	<CaloHitListName>CaloHitList2D</CaloHitListName>
+	<FeatureTools>
+    		<tool type = "LArEnergyKickFeature"/>
+    		<tool type = "LArLocalAsymmetryFeature"/>
+    		<tool type = "LArGlobalAsymmetryFeature"/>
+    		<tool type = "LArShowerAsymmetryFeature"/>
+    		<tool type = "LArRPhiFeature"/>
+	</FeatureTools>
+</algorithm>
+```
+2. The above produces sets of training data files of the format `VertexSelection_Region_MCC7_[interaction_type].txt` and `VertexSelection_Vertex_MCC7_[interaction_type].txt'. Randomly permute the vertex SVM data files and sample from different interaction types as desired to produce a vertex SVM training set&mdash;and similarly for the region SVM data.
+
+3. The vertex and region SVMs are treated independently. Analogously to the below, use the sklearn-based Python script `scripts/rbf_gridsearch_test.py` to find graphically the optimal values of `C` and `gamma`.
+
+4. Use the `C` and `gamma` values to train the SVM and produce XML files using the script at `scripts/run.py`. Ensure that the vertex SVM is named `VertexSelectionVertex` and the region SVM `VertexSelectionRegion` (or whatever names the algorithm is pointed to when not in training set mode).
+
+5. Concatenate the two XML files and point the algorithm towards the combined file when running via the `SvmFileName` parameter; e.g. 
+```xml
+<algorithm type = "LArSvmVertexSelection">
+	<InputCaloHitListNames>CaloHitListU CaloHitListV CaloHitListW</InputCaloHitListNames>
+	<InputClusterListNames>ClustersU ClustersV ClustersW</InputClusterListNames>
+	<OutputVertexListName>NeutrinoVertices3D</OutputVertexListName>
+	<ReplaceCurrentVertexList>true</ReplaceCurrentVertexList>
+	<SvmFileName>PandoraSvm_VertexSelection_MicroBooNE_mcc7.xml</SvmFileName>
+	<RegionSvmName>VertexSelectionRegion</RegionSvmName>
+	<VertexSvmName>VertexSelectionVertex</VertexSvmName>
+	<FeatureTools>
+	    <tool type = "LArEnergyKickFeature"/>
+	    <tool type = "LArLocalAsymmetryFeature"/>
+	    <tool type = "LArGlobalAsymmetryFeature"/>
+	    <tool type = "LArShowerAsymmetryFeature"/>
+	    <tool type = "LArRPhiFeature"/>
+	</FeatureTools>
+    </algorithm>
+```
 
 ********************************************************
 
