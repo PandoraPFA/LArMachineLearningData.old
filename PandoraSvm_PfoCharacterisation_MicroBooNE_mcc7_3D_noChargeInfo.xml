@@ -1,5 +1,5 @@
 <SupportVectorMachine>
-    <Name>FinalPfoCharacterisation</Name>
+    <Name>PfoCharacterisationNoChargeInfo</Name>
     <Timestamp>2017-12-08_20:03:20</Timestamp>
     <Machine>
         <KernelType>4</KernelType>
