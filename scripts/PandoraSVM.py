@@ -10,63 +10,12 @@ import sys
 import time
 import pickle
 
-def LoadData(trainingFileName, delimiter=','):
-    # Use the first example to get the number of columns
-    with open(trainingFileName) as file:
-        ncols = len(file.readline().split(delimiter))
-        
-    # First column is a datestamp, so skip it
-    trainingSet = np.genfromtxt(trainingFileName, delimiter=delimiter, usecols=range(1,ncols), 
-                                dtype=None)
-                                
-    nExamples = trainingSet.size
-    nFeatures = ncols - 2 # last column is the response
-    
-    return np.array(trainingSet), nFeatures, nExamples
-    
-#--------------------------------------------------------------------------------------------------
-
-def SplitTrainingSet(trainingSet, nFeatures):
-    X=[] # features sets
-    Y=[] # responses
-
-    for example in trainingSet:
-        Y.append(int(example[nFeatures])) # type of Y should be bool or int
-        features = []
-        for i in range(0, nFeatures):
-            features.append(float(example[i])) # features in this SVM must be Python float
-            
-        X.append(features)
-
-    return np.array(X).astype(np.float64), np.array(Y).astype(np.int)
-    
-#--------------------------------------------------------------------------------------------------
+from PandoraMVA import *
 
 def StandardizeFeatures(X):
     muValues    = np.mean(X, axis=0)
     sigmaValues = np.std(X, axis=0)
     return np.divide((X - muValues), sigmaValues), muValues, sigmaValues
-    
-#--------------------------------------------------------------------------------------------------
-
-def Randomize(X, Y, setSameSeed=False):
-    if setSameSeed:
-        np.random.seed(0)
-
-    order = np.random.permutation(Y.size)
-    return X[order], Y[order]
-    
-#--------------------------------------------------------------------------------------------------
-
-def Sample(X, Y, testFraction=0.1):
-    trainSize = int((1.0 - testFraction) * Y.size)
-    
-    X_train = X[:trainSize]
-    Y_train = Y[:trainSize]
-    X_test  = X[trainSize:]
-    Y_test  = Y[trainSize:]
-    
-    return X_train, Y_train, X_test, Y_test
     
 #--------------------------------------------------------------------------------------------------
 
@@ -87,11 +36,6 @@ def TrainModel(X_train, Y_train, kernelString, kernelDegree=2, gammaValue=0.05, 
 
     return svmModel, endTime - startTime, nSupportVectors
     
-#--------------------------------------------------------------------------------------------------
-
-def ValidateModel(svmModel, X_test, Y_test):               
-    return svmModel.score(X_test, Y_test)
-
 #--------------------------------------------------------------------------------------------------
 
 def QuickTest(X_train, Y_train, X_test, Y_test, kernelString, kernelDegree=2, gammaValue=0.05, 
@@ -119,47 +63,6 @@ def QuickTest(X_train, Y_train, X_test, Y_test, kernelString, kernelDegree=2, ga
                      
     OverwriteStdout(stdoutString)
     
-#--------------------------------------------------------------------------------------------------
-
-def OverwriteStdout(text):
-    sys.stdout.write('\x1b[2K\r' + text)
-    sys.stdout.flush()
-
-#--------------------------------------------------------------------------------------------------
-
-def OpenXmlTag(modelFile, tag, indentation):
-    modelFile.write((' ' * indentation) + '<' + tag + '>\n')
-    return indentation + 4
-    
-#--------------------------------------------------------------------------------------------------
-
-def CloseXmlTag(modelFile, tag, indentation):
-    indentation = max(indentation - 4, 0)
-    modelFile.write((' ' * indentation) + '</' + tag + '>\n')
-    return indentation
-
-#--------------------------------------------------------------------------------------------------
-
-def WriteXmlFeatureVector(modelFile, featureVector, tag, indentation):
-    modelFile.write((' ' * indentation) + '<' + tag + '>')
-
-    firstTime=True
-    for feature in featureVector:
-        if firstTime:
-            modelFile.write(str(feature))
-            firstTime=False
-        else:
-            modelFile.write(' ' + str(feature))
-            
-    modelFile.write('</' + tag + '>\n')
-    
-#--------------------------------------------------------------------------------------------------
-
-def WriteXmlFeature(modelFile, feature, tag, indentation):
-    modelFile.write((' ' * indentation) + '<' + tag + '>')
-    modelFile.write(str(feature))     
-    modelFile.write('</' + tag + '>\n')
-
 #--------------------------------------------------------------------------------------------------
 
 def WriteXmlFile(filePath, svmName, datetimeString, yAlpha, bias, kernel, mu, scale, sigma, 
@@ -211,21 +114,22 @@ def GetKernelInt(kernelType, kernelDegree=2):
         return 4
 
     raise ValueError('Unknown kernel type for Pandora kernel enum: ' + kernelType)
-    
+
 #--------------------------------------------------------------------------------------------------
-    
+
 def SerializeToPkl(fileName, svmModel, mu, sigma):
     with open(fileName, 'w') as f:
         pickle.dump(svmModel, f)
         pickle.dump(mu, f)
         pickle.dump(sigma, f)
-    
+
 #--------------------------------------------------------------------------------------------------
-    
+
 def LoadFromPkl(fileName, svmModel, mu, sigma):
     with open(fileName, 'r') as f:
-        svmModel = pickle.load(f) 
+        svmModel = pickle.load(f)
         mu       = pickle.load(f)
         sigma    = pickle.load(f)
-        
+
         return svmModel, mu, sigma
+
