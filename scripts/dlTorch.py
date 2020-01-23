@@ -3,20 +3,22 @@ import torch.nn as nn
 import numpy as np
 import torch.utils.data
 import time
+import sys
+import MyModelClass
 
 print(torch.__version__)
 
 # Hyper parameters
-num_epochs = 60
+num_epochs = 1
 num_output = 2
 batch_size = 64
 
 # dataset
 npixels=128
-data = np.load('data.npy')
-labels = np.load('labels.npy')
-valdata = np.load('valdata.npy')
-vallabels = np.load('vallabels.npy')
+data = np.load('level0/npyfiles/100nue100nufinHitCoords' + str(npixels) + 'trainbipixHitCoords'+sys.argv[1]+'.npy')
+labels = np.load('level0/npyfiles/100nue100nufinHitCoords' + str(npixels) + 'trainbipixMCvtx'+sys.argv[1]+'.npy')
+valdata = np.load('level0/npyfiles/100nue100nufinHitCoords' + str(npixels) + 'valbipixHitCoords'+sys.argv[1]+'.npy')
+vallabels = np.load('level0/npyfiles/100nue100nufinHitCoords' + str(npixels) + 'valbipixMCvtx'+sys.argv[1]+'.npy')
 
 data /= 100.0
 valdata /= 100.0
@@ -38,61 +40,8 @@ val_loader = torch.utils.data.DataLoader(val_dataset,batch_size,False) # create 
 #----------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------
 
-class ConvNet(nn.Module):
-    def __init__(self, num_output=2):
-        super(ConvNet, self).__init__()
-        self.layer1 = nn.Sequential(
-            nn.Conv2d(1, 64, kernel_size=8, stride=1, padding=4),
-            nn.ReLU(),
-            nn.BatchNorm2d(64),
-            nn.AvgPool2d(kernel_size=2, stride=2))
-        self.layer2 = nn.Sequential(
-            nn.Conv2d(64, 64, kernel_size=7, stride=1, padding=3),
-            nn.ReLU(),
-            nn.BatchNorm2d(64),
-            nn.AvgPool2d(kernel_size=2, stride=2))
-        self.layer3 = nn.Sequential(
-            nn.Conv2d(64, 64, kernel_size=6, stride=1, padding=3),
-            nn.ReLU(),
-            nn.BatchNorm2d(64),
-            nn.AvgPool2d(kernel_size=2, stride=2))
-        self.layer4 = nn.Sequential(
-            nn.Conv2d(64, 64, kernel_size=6, stride=1, padding=3),
-            nn.ReLU(),
-            nn.BatchNorm2d(64),
-            nn.AvgPool2d(kernel_size=2, stride=2))
-        # First fully connected layer 
-        self.fc1 = nn.Sequential(nn.Linear(8*8*64, 196), nn.ReLU())
-        self.bn1 = nn.Sequential(nn.BatchNorm1d(196))
-        self.fc2 = nn.Sequential(nn.Linear(196, 98), nn.ReLU())
-        self.bn2 = nn.Sequential(nn.BatchNorm1d(98))
-        self.fc3 = nn.Sequential(nn.Linear(98, 11), nn.ReLU())
-        self.bn3 = nn.Sequential(nn.BatchNorm1d(11))
-        self.fc4 = nn.Sequential(nn.Linear(11, num_output))
-#----------------------------------------------------------------------------------------
-
-    def forward(self, x):
-        out = self.layer1(x)
-        out = self.layer2(out)
-        out = self.layer3(out)
-        out = self.layer4(out)
-        out = out.view(-1, 8*8*64)
-        out = self.fc1(out)
-        out = self.bn1(out)
-        out = nn.functional.dropout(out,0.5)
-        out = self.fc2(out)
-        out = self.bn2(out)
-        out = nn.functional.dropout(out,0.5)
-        out = self.fc3(out)
-        out = self.bn3(out)
-        out = self.fc4(out)
-        return out
-
-#----------------------------------------------------------------------------------------
-#----------------------------------------------------------------------------------------
-
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-model = ConvNet(num_output).to(device)
+model = MyModelClass.ConvNet(num_output).to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.01)
 print(model)
 
@@ -114,7 +63,7 @@ def train():
     return loss_all / len(train_loader.dataset)
 
 #----------------------------------------------------------------------------------------
-f1 = open("pred.txt", 'ab')
+f1 = open("recobipixvtx"+sys.argv[1]+".txt", 'ab')
 def test(loader, flag=0):
     model.eval()
     correct = 0
@@ -142,8 +91,8 @@ for epoch in range(num_epochs):
 
 data=1
 valdata=1
-testdata = np.load('testdata.npy')
-testlabels = np.load('testlabels.npy')
+testdata = np.load('level0/npyfiles/100nue100nufinHitCoords' + str(npixels) + 'testbipixHitCoords'+sys.argv[1]+'.npy')
+testlabels = np.load('level0/npyfiles/100nue100nufinHitCoords' + str(npixels) + 'testbipixMCvtx'+sys.argv[1]+'.npy')
 testdata /= 100.0
 testdata = np.transpose(testdata, (0,3,1,2))
 testdata = torch.from_numpy(testdata)
@@ -156,4 +105,4 @@ print('Test Acc: {:.5f}'.
     format(test_acc))
 
 model.eval()
-torch.save(model, 'my_model.pth')
+torch.save(model, 'my_model'+sys.argv[1]+'.pth')
