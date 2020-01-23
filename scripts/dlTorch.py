@@ -9,16 +9,16 @@ import MyModelClass
 print(torch.__version__)
 
 # Hyper parameters
-num_epochs = 1
+num_epochs = 60
 num_output = 2
 batch_size = 64
 
 # dataset
 npixels=128
-data = np.load('level0/npyfiles/100nue100nufinHitCoords' + str(npixels) + 'trainbipixHitCoords'+sys.argv[1]+'.npy')
-labels = np.load('level0/npyfiles/100nue100nufinHitCoords' + str(npixels) + 'trainbipixMCvtx'+sys.argv[1]+'.npy')
-valdata = np.load('level0/npyfiles/100nue100nufinHitCoords' + str(npixels) + 'valbipixHitCoords'+sys.argv[1]+'.npy')
-vallabels = np.load('level0/npyfiles/100nue100nufinHitCoords' + str(npixels) + 'valbipixMCvtx'+sys.argv[1]+'.npy')
+data = np.load('data.npy')
+labels = np.load('labels.npy')
+valdata = np.load('valdata.npy')
+vallabels = np.load('vallabels.npy')
 
 data /= 100.0
 valdata /= 100.0
@@ -63,7 +63,7 @@ def train():
     return loss_all / len(train_loader.dataset)
 
 #----------------------------------------------------------------------------------------
-f1 = open("recobipixvtx"+sys.argv[1]+".txt", 'ab')
+f1 = open("pred.txt", 'ab')
 def test(loader, flag=0):
     model.eval()
     correct = 0
@@ -91,8 +91,8 @@ for epoch in range(num_epochs):
 
 data=1
 valdata=1
-testdata = np.load('level0/npyfiles/100nue100nufinHitCoords' + str(npixels) + 'testbipixHitCoords'+sys.argv[1]+'.npy')
-testlabels = np.load('level0/npyfiles/100nue100nufinHitCoords' + str(npixels) + 'testbipixMCvtx'+sys.argv[1]+'.npy')
+testdata = np.load('testdata.npy')
+testlabels = np.load('testlabels.npy')
 testdata /= 100.0
 testdata = np.transpose(testdata, (0,3,1,2))
 testdata = torch.from_numpy(testdata)
@@ -105,4 +105,4 @@ print('Test Acc: {:.5f}'.
     format(test_acc))
 
 model.eval()
-torch.save(model, 'my_model'+sys.argv[1]+'.pth')
+torch.save(model, 'my_model.pth')
