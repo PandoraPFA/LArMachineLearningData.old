@@ -7,14 +7,14 @@ if __name__=="__main__":
 
     # Settings ------------------------------------------------------------------------------------
     
-    trainingFile      = '/Path/To/Training/Samples.txt'
+    trainingFile      = '/storage/epp2/phrwdg/Dune/newVarPandora/LArReco/PandoraBDT_TrainingOutput_Hierarchy_MLnoChargeInfo.txt'
     trainingMomentum  = 3
     testingFiles      = []
     testingFiles      = [
                             {'File' : '/Path/To/Testing/Samples_1.txt', 'Momentum': 1 },
                             {'File' : '/Path/To/Testing/Samples_2.txt', 'Momentum': 2 }
                         ]
-    bdtName           = 'BdtExample'
+    bdtName           = 'BdtExampleNoChargeInfo'
     treeDepth         = int(sys.argv[1]) 
     nTrees            = int(sys.argv[2]) 
     trainTestSplit    = 0.5
@@ -23,7 +23,7 @@ if __name__=="__main__":
     serializeToPkl    = True 
     serializeToXml    = True 
     loadFromPkl       = False 
-    makeScorePlots    = True # Makes plots of BDT score for training and testing samples 
+    makeScorePlots    = False # Makes plots of BDT score for training and testing samples 
     xmlFileName       = bdtName + '_NTrees_' + str(nTrees) + '_TreeDepth_' + str(treeDepth) + '.xml'
     pklFileName       = bdtName + '_NTrees_' + str(nTrees) + '_TreeDepth_' + str(treeDepth) + '.pkl'
     
