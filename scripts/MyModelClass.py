@@ -3,7 +3,7 @@ import torch.nn as nn
 
 #----------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------
-
+npixels=128
 class ConvNet(nn.Module):
     def __init__(self, num_output=2):
         super(ConvNet, self).__init__()
@@ -28,7 +28,7 @@ class ConvNet(nn.Module):
             nn.BatchNorm2d(64),
             nn.AvgPool2d(kernel_size=2, stride=2))
         # First fully connected layer 
-        self.fc1 = nn.Sequential(nn.Linear(8*8*64, 196), nn.ReLU())
+        self.fc1 = nn.Sequential(nn.Linear(64*(npixels//(2*2*2*2))*(npixels//(2*2*2*2)), 196), nn.ReLU())
         self.bn1 = nn.Sequential(nn.BatchNorm1d(196))
         self.fc2 = nn.Sequential(nn.Linear(196, 98), nn.ReLU())
         self.bn2 = nn.Sequential(nn.BatchNorm1d(98))
@@ -42,7 +42,7 @@ class ConvNet(nn.Module):
         out = self.layer2(out)
         out = self.layer3(out)
         out = self.layer4(out)
-        out = out.view(-1, 8*8*64)
+        out = out.view(-1, 64*(npixels//(2*2*2*2))*(npixels//(2*2*2*2)))
         out = self.fc1(out)
         out = self.bn1(out)
         out = nn.functional.dropout(out,0.5)
