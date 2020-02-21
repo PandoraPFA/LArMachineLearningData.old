@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import numpy as np
 import torch.utils.data
-import sys
 import MyModelClass
 
 print(torch.__version__)
@@ -14,7 +13,6 @@ model = torch.load('my_model.pth', map_location=torch.device('cpu'))
 model.eval()
 
 # dataset
-npixels=128
 valdata = np.load('valdata.npy')
 vallabels = np.load('vallabels.npy')
 

@@ -3,7 +3,6 @@ import torch.nn as nn
 import numpy as np
 import torch.utils.data
 import time
-import sys
 import MyModelClass
 
 print(torch.__version__)
@@ -14,7 +13,6 @@ num_output = 2
 batch_size = 64
 
 # dataset
-npixels=128
 data = np.load('data.npy')
 labels = np.load('labels.npy')
 valdata = np.load('valdata.npy')
