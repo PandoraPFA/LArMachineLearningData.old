@@ -12,7 +12,7 @@ num_epochs = 60
 num_output = 2
 batch_size = 64
 
-# dataset
+# Dataset
 data = np.load('data.npy')
 labels = np.load('labels.npy')
 valdata = np.load('valdata.npy')
@@ -32,8 +32,8 @@ train_dataset = torch.utils.data.TensorDataset(data,labels)
 val_dataset = torch.utils.data.TensorDataset(valdata,vallabels)
 
 # Data loader
-train_loader = torch.utils.data.DataLoader(train_dataset,batch_size,True) # create your dataloader
-val_loader = torch.utils.data.DataLoader(val_dataset,batch_size,False) # create your dataloader
+train_loader = torch.utils.data.DataLoader(train_dataset,batch_size,True)
+val_loader = torch.utils.data.DataLoader(val_dataset,batch_size,False) 
 
 #----------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ testdata = np.transpose(testdata, (0,3,1,2))
 testdata = torch.from_numpy(testdata)
 testlabels = torch.from_numpy(testlabels)
 test_dataset = torch.utils.data.TensorDataset(testdata,testlabels)
-test_loader = torch.utils.data.DataLoader(test_dataset,batch_size,False) # create your dataloader
+test_loader = torch.utils.data.DataLoader(test_dataset,batch_size,False)
 
 test_acc  = test(test_loader, 1)
 print('Test Acc: {:.5f}'.

@@ -27,7 +27,6 @@ class ConvNet(nn.Module):
             nn.ReLU(),
             nn.BatchNorm2d(64),
             nn.AvgPool2d(kernel_size=2, stride=2))
-        # First fully connected layer 
         self.fc1 = nn.Sequential(nn.Linear(64*(npixels//(2*2*2*2))*(npixels//(2*2*2*2)), 196), nn.ReLU())
         self.bn1 = nn.Sequential(nn.BatchNorm1d(196))
         self.fc2 = nn.Sequential(nn.Linear(196, 98), nn.ReLU())

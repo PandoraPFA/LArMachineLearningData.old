@@ -12,7 +12,6 @@ print(torch.__version__)
 model = torch.load('my_model.pth', map_location=torch.device('cpu'))
 model.eval()
 
-# dataset
 valdata = np.load('valdata.npy')
 vallabels = np.load('vallabels.npy')
 
